@@ -46,16 +46,16 @@
             numeroImpar.push(numero);
         }
     }
-    console.log('\n------- NUMEROS PARES -------');
+    console.log('\n------- NÚMEROS PARES -------');
     for (let contador = 0 ; contador < numeroPar.length ; contador++) {
         console.log('\t' + numeroPar[contador]);
     }
     console.log('Quantidade de numeros pares: ' + numeroPar.length);
-    console.log('\n------- NUMEROS IMPARES -------');
+    console.log('\n------- NÚMEROS ÍMPARES -------');
     for (let contador = 0 ; contador < numeroImpar.length ; contador++) {
         console.log('\t' + numeroImpar[contador]);
     }
-    console.log('\nQuantidade de numeros impares: ' + numeroImpar.length + '\n');
+    console.log('\nQuantidade de numeros ímpares: ' + numeroImpar.length + '\n');
  }
 
  module.exports = {

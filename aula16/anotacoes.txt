@@ -1,0 +1,6 @@
+MVC - Model View Controller
+* Model: Onde manipulamos dados com o banco. Scriptde insert, select, update, delete. Onde nos conectamos com o banco de dados.
+* View: dados de manipulação do usuário (tela - front - html - css -js); 
+* Controller: Camada intermediaria entre a view e a model. Onde recebemos, tratamos ou buscamos os dados. Camada mais importante;
+
+Front/View encaminha dados para a API em formato JSON, que encaminha para a Controller que no nosso caso rodamos node com javascript, a Controller faz todas as  validações, tratamentos... se tudo estiver ok, envia para a Model. A Model pega esses dados e manda para o banco de dados. Model não trata dados, apenas pega esses dados e encaminha ao banco atraves dos scripts insert, select, update, delete 
