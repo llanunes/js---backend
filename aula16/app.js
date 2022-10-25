@@ -32,6 +32,7 @@ const  express  = require ('express');
 const bodyParser = require ('body-parser');
 const cors = require ('cors');
 const { MESSAGE_ERROR, MESSAGE_SUCESS } = require ('./modulo/config.js');
+const { request, response } = require('express');
 
 
 const app = express();
@@ -121,6 +122,117 @@ app.post('/aluno', cors(), jsonParser, async (request, response, next) => {
     response.status(statusCode);
     response.json(message);
 
+});
+
+// endpoint para atualizar um aluno existente
+app.put('/aluno/:id', cors(), jsonParser, async (request, response, next) => {
+    let statusCode;
+    let message;
+    let headerContentType;
+
+    // recebe o tipo de content type que foi enviado no header da requisição
+    // application/json
+    headerContentType = request.headers['content-type']
+
+        // validar se o content-type é do tipo json
+    if (headerContentType == 'application/json'){
+        let dadosBody = request.body
+
+        // Realiza um processo de conversão de dados para conseguir comparar o json vazio
+        if(JSON.stringify (dadosBody) != "{}"){
+
+            // recebe id enviado por parametro na requisição
+            let id = request.params.id;
+
+            // validacao do ID na requisição 
+            if (id != '' && id != undefined){
+
+                // adiciona o id no JSON que chegou no corpo da requisição
+                dadosBody.id = id;
+                // import do arquivo da controller de aluno
+                const controllerAluno = require ('./controller/controllerAluno');
+
+                // chama a função novoAluno da controller e encaminha os dados do body
+                const novoAluno = controllerAluno.atualizarAluno(dadosBody);
+
+            statusCode = novoAluno.status;
+            message = novoAluno.message;
+            } else {
+                statusCode =  400 ;
+                message = MESSAGE_ERROR.REQUIRED_ID
+            }
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+        
+    } else {
+        statusCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode);
+    response.json(message);
+
+});
+
+// endpoint para deletar um aluno existente
+app.delete('/aluno/:id', cors(), jsonParser, async (request, response, next) => {
+    let statusCode;
+    let message;
+    let id = request.params.id
+
+    if (id != '' && id != undefined){
+        // import do arquivo da controller de aluno
+        const controllerAluno = require ('./controller/controllerAluno');
+        // chama a função para excluir um item
+        const deletarAluno = controllerAluno.deletarAluno(id);
+
+        statusCode = deletarAluno.status;
+        message = deletarAluno.message
+    } else {
+        statusCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID
+    }
+   response.status(statusCode);
+   response.json(message);
+});
+
+// endpoint para buscar um aluno pelo id
+app.get('/aluno/:id', cors(), jsonParser, async (request, response, next) => {
+    let message;
+    let statusCode;
+    let id = request.params.id;
+    
+    if (id != '' && id != undefined){
+
+         // import do arquivo controllerAluno
+        const controllerAluno = require ('./controller/controllerAluno.js');
+        
+        // Retorna todos os alunos existentes do BD
+        const dadosAluno = await controllerAluno.buscarAluno(id);
+        // console.log(dadosAlunos);
+        
+        // valida se existe retorno 
+            if(dadosAluno){
+
+                //status 200 - deu certo.
+                statusCode = 200;
+                message = dadosAluno;
+
+            } else {
+                statusCode = 400;
+                message = MESSAGE_ERROR.REQUIRED_ID
+            }
+    } else {
+
+        // status 404 - deu erro
+        statusCode = 404; 
+        message = MESSAGE_ERROR.NOT_FOUND_BD;
+    }
+
+    response.status(statusCode);
+    response.json(message);
 });
 
 // Ativa o servidor para receber requisições http
