@@ -149,8 +149,6 @@ const selectByIdAluno = async (id) => {
  
          // recordset = dados vindos de um BD
  
-   
- 
         let sql = `select cast(id as float) as 
         id, 
         nome, 
@@ -163,7 +161,7 @@ const selectByIdAluno = async (id) => {
         celular, 
         data_nascimento
         from tbl_aluno
-         where id = ${id}`;
+        where id = ${id}`;
 
     // criamos um objeto do tipo recordset para receber os dados do DB aravés do script  SQL (select)    
      const rsAluno = await prisma.$queryRawUnsafe(sql);

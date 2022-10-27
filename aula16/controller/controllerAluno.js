@@ -62,17 +62,21 @@ const atualizarAluno = (aluno) => {
 const deletarAluno = (id) => {
     if (id == '' || id == undefined){
         return { status: 400, message: MESSAGE_ERROR.REQUIRED_ID}
-    }   
-    const excluirAluno = require ('../model/DAO/alunos.js');
+    }else{
+        const aluno = buscarAluno(id) 
+            if(aluno){
+                const deletarAluno = require ('../model/DAO/alunos.js');
+                const result = deletarAluno.deleteAluno(id);
 
-        // chama a função para inserir um novo aluno
-        const result = excluirAluno.deleteAluno(id);
-        
-        if (result){
-            return  { status: 201, message: MESSAGE_SUCESS.DELETE_ITEM };
-        } else {
-            return { status: 500, message: MESSAGE_ERROR.INTERNAL_ERROR_DB };
+                if (result){
+                    return  { status: 201, message: MESSAGE_SUCESS.DELETE_ITEM };
+                } else {
+                return { status: 500, message: MESSAGE_ERROR.INTERNAL_ERROR_DB };
+                }
+            } else {
+                return {status: 404, message: MESSAGE_ERROR.NOT_FOUND_BD}
         }
+    }    
 }
 
 // funcao para retornar todos os registros
@@ -100,12 +104,10 @@ const buscarAluno = async (id) => {
     if (id == '' || id == undefined){
         return { status: 400, message: MESSAGE_ERROR.REQUIRED_ID}
     }   
-
     const { selectByIdAluno } = require ('../model/DAO/alunos.js');
     const dadosAluno = await selectByIdAluno(id);
 
     if(dadosAluno){
-        
         dadosAlunoJSON.aluno = dadosAluno;
         return dadosAlunoJSON;
     } else {

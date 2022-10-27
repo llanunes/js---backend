@@ -54,7 +54,7 @@ const jsonParser = bodyParser.json();
 
 
 // EndPoint para listar todos os alunos
-app.get('/alunos', cors(), async (request, response) => {
+app.get('/v1/alunos', cors(), async (request, response) => {
 
     let message;
     let statusCode;
@@ -84,8 +84,28 @@ app.get('/alunos', cors(), async (request, response) => {
     response.json(message);
 });
 
+app.get('/v1/cursos', cors(), async(request, response, next) => {
+    let message;
+    let statusCode;
+
+    const controllerCurso = require ('./controller/controllerCurso.js');
+
+    const dadosCurso = await controllerCurso.listarCursos();
+
+    if(dadosCurso){
+        statusCode = 200;
+        message = dadosCurso
+    } else {
+        statusCode = 404;
+        message = MESSAGE_ERROR.NOT_FOUND_BD
+    }
+
+    response.status(statusCode);
+    response.json(message);
+});
+
 // EndPoint para inserir um novo aluno
-app.post('/aluno', cors(), jsonParser, async (request, response, next) => {
+app.post('/v1/aluno', cors(), jsonParser, async (request, response, next) => {
     let statusCode;
     let message;
     let headerContentType;
@@ -124,8 +144,8 @@ app.post('/aluno', cors(), jsonParser, async (request, response, next) => {
 
 });
 
-// endpoint para atualizar um aluno existente
-app.put('/aluno/:id', cors(), jsonParser, async (request, response, next) => {
+// endopoint para adicionar um novo curso
+app.post('/v1/curso', cors(), jsonParser, async (request, response, next) => {
     let statusCode;
     let message;
     let headerContentType;
@@ -137,6 +157,46 @@ app.put('/aluno/:id', cors(), jsonParser, async (request, response, next) => {
         // validar se o content-type é do tipo json
     if (headerContentType == 'application/json'){
         let dadosBody = request.body
+
+        // Realiza um processo de conversão de dados para conseguir comparar o json vazio
+        if(JSON.stringify (dadosBody) != "{}"){
+            // import do arquivo da controller de aluno
+            const controllerCurso = require ('./controller/controllerCurso');
+
+            // chama a função novoAluno da controller e encaminha os dados do body
+            const novoCurso = controllerCurso.novoCurso(dadosBody);
+
+           statusCode = novoCurso.status;
+           message = novoCurso.message;
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+        
+    } else {
+        statusCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode);
+    response.json(message);
+
+});
+
+// endpoint para atualizar um aluno existente
+app.put('/v1/aluno/:id', cors(), jsonParser, async (request, response, next) => {
+    let statusCode;
+    let message;
+    let headerContentType;
+
+    // recebe o tipo de content type que foi enviado no header da requisição
+    // application/json
+    headerContentType = request.headers['content-type']
+
+        // validar se o content-type é do tipo json
+    if (headerContentType == 'application/json'){
+        let dadosBody = request.body;
 
         // Realiza um processo de conversão de dados para conseguir comparar o json vazio
         if(JSON.stringify (dadosBody) != "{}"){
@@ -177,7 +237,7 @@ app.put('/aluno/:id', cors(), jsonParser, async (request, response, next) => {
 });
 
 // endpoint para deletar um aluno existente
-app.delete('/aluno/:id', cors(), jsonParser, async (request, response, next) => {
+app.delete('/v1/aluno/:id', cors(), jsonParser, async (request, response, next) => {
     let statusCode;
     let message;
     let id = request.params.id
@@ -199,7 +259,7 @@ app.delete('/aluno/:id', cors(), jsonParser, async (request, response, next) => 
 });
 
 // endpoint para buscar um aluno pelo id
-app.get('/aluno/:id', cors(), jsonParser, async (request, response, next) => {
+app.get('/v1/aluno/:id', cors(), jsonParser, async (request, response, next) => {
     let message;
     let statusCode;
     let id = request.params.id;
@@ -225,8 +285,6 @@ app.get('/aluno/:id', cors(), jsonParser, async (request, response, next) => {
                 message = MESSAGE_ERROR.REQUIRED_ID
             }
     } else {
-
-        // status 404 - deu erro
         statusCode = 404; 
         message = MESSAGE_ERROR.NOT_FOUND_BD;
     }
